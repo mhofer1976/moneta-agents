@@ -1,8 +1,6 @@
 import streamlit as st
 import requests
 import logging
-import subprocess
-import json
 import os
 from dotenv import load_dotenv
 from msal import PublicClientApplication
@@ -14,27 +12,8 @@ from config import (
     AGENT_STYLES,
     GENERAL_STYLES
 )
-def load_azd_env():
-    """Get path to current azd env file and load file using python-dotenv"""
-    result = subprocess.run("azd env list -o json", shell=True, capture_output=True, text=True)
-    if result.returncode == 0:
-        logging.info(f"azd binary present")
-        env_json = json.loads(result.stdout)
-        env_file_path = None
-        for entry in env_json:
-            logging.info(f"azd entry found: {entry}")
-            if entry["IsDefault"]:
-                env_file_path = entry["DotEnvPath"]
-        if not env_file_path:
-            logging.info(f"azd environment not present. reverting to plain dotenv")
-            load_dotenv()
-        load_dotenv(env_file_path, override=True)
-    else:
-        logging.info(f"azd binary not found. reverting to plain dotenv")
-        load_dotenv()
-   
-# Load environment variables from a .env file
-load_azd_env()
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,8 +27,8 @@ st.set_page_config(
 
 
 # Constants
-CLIENT_ID = os.getenv('AZURE_CLIENT_APP_ID','')
-TENANT_ID = os.getenv('AZURE_AUTH_TENANT_ID','')
+CLIENT_ID = os.getenv('AZ_REG_APP_CLIENT_ID','')
+TENANT_ID = os.getenv('AZ_TENANT_ID','')
 BACKEND_ENDPOINT = os.getenv('BACKEND_ENDPOINT', 'http://localhost:8000')
 REDIRECT_URI = os.getenv("WEB_REDIRECT_URI")
 DISABLE_LOGIN = os.getenv('DISABLE_LOGIN')
